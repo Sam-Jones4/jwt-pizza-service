@@ -28,35 +28,35 @@ class Metrics {
     }
 
     requestTracker(req, res, next) {
-        requests.total++;
-        if (req.method in requests) {
-            requests[req.method]++;
+        this.requests.total++;
+        if (req.method in this.requests) {
+            this.requests[req.method]++;
         }
         next();
     }
 
     trackAuthAttempt(success) {
-        success ? authAttempts.success++ : authAttempts.failed++;
+        success ? this.authAttempts.success++ : authAttempts.failed++;
     }
 
     trackActiveUser(userId) {
-        activeUsers.add(userId);
+        this.activeUsers.add(userId);
     }
 
     trackPizzaSale(amount, revenue) {
-        pizzaMetrics.sold += amount;
-        pizzaMetrics.revenue += revenue;
+        this.pizzaMetrics.sold += amount;
+        this.pizzaMetrics.revenue += revenue;
     }
 
     trackPizzaFailure() {
-        pizzaMetrics.failures++;
+        this.pizzaMetrics.failures++;
     }
 
     trackLatency(type, duration) {
-        if (!latencyMetrics[type]) {
-            latencyMetrics[type] = [];
+        if (!this.latencyMetrics[type]) {
+            this.latencyMetrics[type] = [];
         }
-        latencyMetrics[type].push(duration);
+        this.latencyMetrics[type].push(duration);
     }
 
     getCpuUsagePercentage() {
@@ -127,11 +127,11 @@ class Metrics {
         const timer = setInterval(() => {
             try {
                 const buf = new MetricBuilder();
-                httpMetrics(buf);
-                systemMetrics(buf);
-                userMetrics(buf);
-                purchaseMetrics(buf);
-                authMetrics(buf);
+                this.httpMetrics(buf);
+                this.systemMetrics(buf);
+                this.userMetrics(buf);
+                this.purchaseMetrics(buf);
+                this.authMetrics(buf);
 
                 const metrics = buf.toString('\n');
                 this.sendMetricToGrafana(metrics);
@@ -141,27 +141,27 @@ class Metrics {
         }, period);
     }
 
-    appendHttpMetrics(buf) {
+    httpMetrics(buf) {
         buf.append('pizza_http_request', 'total', this.requests.total);
         buf.append('pizza_http_latency', 'service', this.latencyMetrics.service);
     }
 
-    appendSystemMetrics(buf) {
+    systemMetrics(buf) {
         buf.append('pizza_system_cpu', 'percent', this.getCpuUsagePercentage());
         buf.append('pizza_system_memory', 'used', this.getMemoryUsagePercentage());
     }
 
-    appendUserMetrics(buf) {
+    userMetrics(buf) {
         buf.append('pizza_user_count', 'total', this.activeUsers.size);
     }
 
-    appendPurchaseMetrics(buf) {
+    purchaseMetrics(buf) {
         buf.append('pizza_purchase_sold', 'total', this.pizzaMetrics.sold);
         buf.append('pizza_purchase_revenue', 'total', this.pizzaMetrics.revenue);
         buf.append('pizza_purchase_failed', 'total', this.pizzaMetrics.failed);
     }
 
-    appendAuthMetrics(buf) {
+    authMetrics(buf) {
         buf.append('pizza_auth_success', 'total', this.authAttempts.successful);
         buf.append('pizza_auth_failure', 'total', this.authAttempts.failed);
     }
