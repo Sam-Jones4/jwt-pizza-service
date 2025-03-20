@@ -36,7 +36,7 @@ class Metrics {
     }
 
     trackAuthAttempt(success) {
-        success ? this.authAttempts.success++ : authAttempts.failed++;
+        success ? this.authAttempts.success++ : this.authAttempts.failed++;
     }
 
     trackActiveUser(userId) {
@@ -124,7 +124,7 @@ class Metrics {
     }   
 
     sendMetricsPeriodically(period) {
-        const timer = setInterval(() => {
+        setInterval(() => {
             try {
                 const buf = new MetricBuilder();
                 this.httpMetrics(buf);
