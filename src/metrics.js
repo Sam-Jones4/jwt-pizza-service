@@ -1,22 +1,6 @@
 const config = require('./config');
 const os = require('os');
 
-class MetricBuilder {
-    constructor() {
-        this._strings = [];
-    }
-
-    append(metricPrefix, metricName, metricValue) {
-        const metric = `${metricPrefix},source=${config.metrics.source} ${metricName}=${metricValue}`;
-        this._strings.push(metric);
-        return this;
-    }
-
-    toString(delim = '\n') {
-        return this._strings.join(delim);
-    }
-}
-
 class Metrics {
     constructor()
     {
@@ -126,44 +110,20 @@ class Metrics {
     sendMetricsPeriodically(period) {
         setInterval(() => {
             try {
-                const buf = new MetricBuilder();
-                this.httpMetrics(buf);
-                this.systemMetrics(buf);
-                this.userMetrics(buf);
-                this.purchaseMetrics(buf);
-                this.authMetrics(buf);
-
-                const metrics = buf.toString('\n');
-                this.sendMetricToGrafana(metrics);
+                this.sendMetricToGrafana('pizza_http_request_total', this.requests.total, 'sum', 'count');
+                this.sendMetricToGrafana('pizza_http_latency_service', this.latencyMetrics.service.length ? this.latencyMetrics.service.reduce((a, b) => a + b, 0) / this.latencyMetrics.service.length : 0, 'gauge', 'ms');
+                this.sendMetricToGrafana('pizza_system_cpu', this.getCpuUsagePercentage(), 'gauge', 'percent');
+                this.sendMetricToGrafana('pizza_system_memory', this.getMemoryUsagePercentage(), 'gauge', 'percent');
+                this.sendMetricToGrafana('pizza_user_count', this.activeUsers.size, 'gauge', 'count');
+                this.sendMetricToGrafana('pizza_purchase_sold', this.pizzaMetrics.sold, 'sum', 'count');
+                this.sendMetricToGrafana('pizza_purchase_revenue', this.pizzaMetrics.revenue, 'sum', 'currency');
+                this.sendMetricToGrafana('pizza_purchase_failed', this.pizzaMetrics.failed, 'sum', 'count');
+                this.sendMetricToGrafana('pizza_auth_success', this.authAttempts.successful, 'sum', 'count');
+                this.sendMetricToGrafana('pizza_auth_failure', this.authAttempts.failed, 'sum', 'count');
             } catch (error) {
-                console.log('Error sending metrics', error);
+                console.error('Error sending metrics:', error);
             }
         }, period);
-    }
-
-    httpMetrics(buf) {
-        buf.append('pizza_http_request', 'total', this.requests.total);
-        buf.append('pizza_http_latency', 'service', this.latencyMetrics.service);
-    }
-
-    systemMetrics(buf) {
-        buf.append('pizza_system_cpu', 'percent', this.getCpuUsagePercentage());
-        buf.append('pizza_system_memory', 'used', this.getMemoryUsagePercentage());
-    }
-
-    userMetrics(buf) {
-        buf.append('pizza_user_count', 'total', this.activeUsers.size);
-    }
-
-    purchaseMetrics(buf) {
-        buf.append('pizza_purchase_sold', 'total', this.pizzaMetrics.sold);
-        buf.append('pizza_purchase_revenue', 'total', this.pizzaMetrics.revenue);
-        buf.append('pizza_purchase_failed', 'total', this.pizzaMetrics.failed);
-    }
-
-    authMetrics(buf) {
-        buf.append('pizza_auth_success', 'total', this.authAttempts.successful);
-        buf.append('pizza_auth_failure', 'total', this.authAttempts.failed);
     }
 }
 
