@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const config = require('../config.js');
 const { asyncHandler } = require('../endpointHelper.js');
 const { DB, Role } = require('../database/database.js');
+const metrics = require('../metrics.js');
 
 const authRouter = express.Router();
 
@@ -67,6 +68,7 @@ authRouter.authenticateToken = (req, res, next) => {
 authRouter.post(
   '/',
   asyncHandler(async (req, res) => {
+    // metrics.requestTracker("POST");
     const { name, email, password } = req.body;
     if (!name || !email || !password) {
       return res.status(400).json({ message: 'name, email, and password are required' });
