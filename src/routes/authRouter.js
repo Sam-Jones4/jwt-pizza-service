@@ -59,8 +59,10 @@ async function setAuthUser(req, res, next) {
 // Authenticate token
 authRouter.authenticateToken = (req, res, next) => {
   if (!req.user) {
+    metrics.trackAuthAttempt(false);
     return res.status(401).send({ message: 'unauthorized' });
   }
+  metrics.trackAuthAttempt(true);
   next();
 };
 
@@ -83,7 +85,7 @@ authRouter.post(
     metrics.trackLatency(service, latency);
 
     metrics.trackAuthAttempt(true);
-    metrics.activeUsers(user.id);
+    metrics.trackActiveUser(user.id);
     res.json({ user: user, token: auth });
   })
 );
