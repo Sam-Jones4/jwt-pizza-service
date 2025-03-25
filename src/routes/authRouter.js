@@ -69,7 +69,6 @@ authRouter.post(
   '/',
   asyncHandler(async (req, res) => {
     const start = new Date();
-    metrics.requestTracker("POST");
     const { name, email, password } = req.body;
     if (!name || !email || !password) {
       metrics.trackAuthAttempt(false);

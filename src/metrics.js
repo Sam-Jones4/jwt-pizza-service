@@ -26,6 +26,7 @@ class Metrics {
         else {
             this.authAttempts.failed++;
         }
+        console.log(this.authAttempts);
     }
 
     trackActiveUser(userId) {
