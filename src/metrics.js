@@ -19,8 +19,13 @@ class Metrics {
         next();
     }
 
-    trackAuthAttempt(success) {
-        success ? this.authAttempts.success++ : this.authAttempts.failed++;
+    trackAuthAttempt(successful) {
+        if (successful) {
+            this.authAttempts.successful++;
+        }
+        else {
+            this.authAttempts.failed++;
+        }
     }
 
     trackActiveUser(userId) {
@@ -33,7 +38,7 @@ class Metrics {
     }
 
     trackPizzaFailure() {
-        this.pizzaMetrics.failures++;
+        this.pizzaMetrics.failed++;
     }
 
     trackLatency(type, duration) {
