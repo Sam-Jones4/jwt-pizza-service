@@ -115,16 +115,21 @@ class Metrics {
     sendMetricsPeriodically(period) {
         setInterval(() => {
             try {
-                this.sendMetricToGrafana('pizza_http_request_total', this.requests.total, 'sum', 'count');
-                this.sendMetricToGrafana('pizza_http_latency_service', this.latencyMetrics.service.length ? this.latencyMetrics.service.reduce((a, b) => a + b, 0) / this.latencyMetrics.service.length : 0, 'gauge', 'ms');
-                this.sendMetricToGrafana('pizza_system_cpu', this.getCpuUsagePercentage(), 'gauge', 'percent');
-                this.sendMetricToGrafana('pizza_system_memory', this.getMemoryUsagePercentage(), 'gauge', 'percent');
-                this.sendMetricToGrafana('pizza_user_count', this.activeUsers.size, 'gauge', 'count');
-                this.sendMetricToGrafana('pizza_purchase_sold', this.pizzaMetrics.sold, 'sum', 'count');
-                this.sendMetricToGrafana('pizza_purchase_revenue', this.pizzaMetrics.revenue, 'sum', 'currency');
-                this.sendMetricToGrafana('pizza_purchase_failed', this.pizzaMetrics.failed, 'sum', 'count');
-                this.sendMetricToGrafana('pizza_auth_success', this.authAttempts.successful, 'sum', 'count');
-                this.sendMetricToGrafana('pizza_auth_failure', this.authAttempts.failed, 'sum', 'count');
+                this.sendMetricToGrafana('http_total_requests', this.requests.total, 'sum', 'count');
+                this.sendMetricToGrafana('http_get_requests', this.requests.GET, 'sum', 'count');
+                this.sendMetricToGrafana('http_put_requests', this.requests.PUT, 'sum', 'count');
+                this.sendMetricToGrafana('http_post_requests', this.requests.POST, 'sum', 'count');
+                this.sendMetricToGrafana('http_delete_requests', this.requests.DELETE, 'sum', 'count');
+                this.sendMetricToGrafana('http_latency', this.latencyMetrics.service.length ? this.latencyMetrics.service.reduce((a, b) => a + b, 0) / this.latencyMetrics.service.length : 0, 'gauge', 'ms');
+                this.sendMetricToGrafana('active_users', this.activeUsers.size, 'gauge', 'count');
+                this.sendMetricToGrafana('auth_success', this.authAttempts.successful, 'sum', 'count');
+                this.sendMetricToGrafana('auth_failure', this.authAttempts.failed, 'sum', 'count');
+                this.sendMetricToGrafana('cpu_usage', this.getCpuUsagePercentage(), 'gauge', 'percent');
+                this.sendMetricToGrafana('memory_usage', this.getMemoryUsagePercentage(), 'gauge', 'percent');
+                this.sendMetricToGrafana('pizzas_sold', this.pizzaMetrics.sold, 'sum', 'count');
+                this.sendMetricToGrafana('pizza_revenue', this.pizzaMetrics.revenue, 'sum', 'currency');
+                this.sendMetricToGrafana('pizza_failed', this.pizzaMetrics.failed, 'sum', 'count');
+                this.sendMetricToGrafana('pizza_latency', this.latencyMetrics.pizza.length ? this.latencyMetrics.pizza.reduce((a, b) => a + b, 0) / this.latencyMetrics.pizza.length : 0, 'gauge', 'ms');
             } catch (error) {
                 console.error('Error sending metrics:', error);
             }
