@@ -62,6 +62,7 @@ authRouter.authenticateToken = (req, res, next) => {
     metrics.trackAuthAttempt(false);
     return res.status(401).send({ message: 'unauthorized' });
   }
+  console.log("we got there")
   metrics.trackAuthAttempt(true);
   next();
 };

@@ -127,7 +127,7 @@ class Metrics {
                 this.sendMetricToGrafana('http_put_requests', this.requests.PUT, 'sum', 'count');
                 this.sendMetricToGrafana('http_post_requests', this.requests.POST, 'sum', 'count');
                 this.sendMetricToGrafana('http_delete_requests', this.requests.DELETE, 'sum', 'count');
-                this.sendMetricToGrafana('http_latency', this.latencyMetrics.service.length ? this.latencyMetrics.service.reduce((a, b) => a + b, 0) / this.latencyMetrics.service.length : 0, 'gauge', 'ms');
+                this.sendMetricToGrafana('http_latency', this.latencyMetrics.service.length ? this.latencyMetrics.service.reduce((a, b) => a + b, 0) / this.latencyMetrics.service.length : 0, 'sum', 'ms');
                 this.sendMetricToGrafana('active_users', this.activeUsers.size, 'gauge', 'count');
                 this.sendMetricToGrafana('auth_success', this.authAttempts.successful, 'sum', 'count');
                 this.sendMetricToGrafana('auth_failure', this.authAttempts.failed, 'sum', 'count');
@@ -136,7 +136,7 @@ class Metrics {
                 this.sendMetricToGrafana('pizzas_sold', this.pizzaMetrics.sold, 'sum', 'count');
                 this.sendMetricToGrafana('pizza_revenue', this.pizzaMetrics.revenue, 'sum', 'currency');
                 this.sendMetricToGrafana('pizza_failed', this.pizzaMetrics.failed, 'sum', 'count');
-                this.sendMetricToGrafana('pizza_latency', this.latencyMetrics.pizza.length ? this.latencyMetrics.pizza.reduce((a, b) => a + b, 0) / this.latencyMetrics.pizza.length : 0, 'gauge', 'ms');
+                this.sendMetricToGrafana('pizza_latency', this.latencyMetrics.pizza.length ? this.latencyMetrics.pizza.reduce((a, b) => a + b, 0) / this.latencyMetrics.pizza.length : 0, 'sum', 'ms');
             } catch (error) {
                 console.error('Error sending metrics:', error);
             }
