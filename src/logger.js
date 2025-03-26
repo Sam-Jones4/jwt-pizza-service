@@ -8,6 +8,20 @@ function sanitize(logData) {
     return logData.replace(/\\"password\\":\s*\\"[^"]*\\"/g, '\\"password\\": \\"*****\\"');
 }
 
+function sendLogToGrafana(event) {
+    const body = JSON.stringify(event);
+    fetch(`${config.url}`, {
+      method: 'post',
+      body: body,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${config.userId}:${config.apiKey}`,
+      },
+    }).then((res) => {
+      if (!res.ok) console.log('Failed to send log to Grafana');
+    });
+}
+
 const httpLogger = (req, res, next) => {
     let send = res.send;
     res.send = (resBody) => {
@@ -20,6 +34,7 @@ const httpLogger = (req, res, next) => {
         resBody: JSON.stringify(resBody),
       };
       logger.httpLogger(req, res);
+      sendLogToGrafana({ level: 'info', type: 'http', logData })
       send.call(res, resBody);
     };
     next();
@@ -28,16 +43,19 @@ const httpLogger = (req, res, next) => {
 const dbLogger = (sqlQuery) =>
 {
     logger.dbLogger(sanitize(sqlQuery));
+    sendLogToGrafana({ level: 'info', type: 'database', logData: { query: sqlQuery } });
 }
 
 const factoryLogger = (orderInfo) => 
 {
     logger.factoryLogger(sanitize(orderInfo));
+    sendLogToGrafana({ level: 'info', type: 'factory', logData: orderInfo });
 };
 
 const unhandledErrorLogger = (err) => 
 {
     logger.unhandledErrorLogger(sanitize(err));
+    sendLogToGrafana({ level: 'error', type: 'unhandled_exception', logData: { error: err.message, stack: err.stack } });
 };
 
 module.exports = {
