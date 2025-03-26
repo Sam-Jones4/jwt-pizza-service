@@ -1,4 +1,4 @@
-const config = require('./config.json');
+const config = require('./config');
 const Logger = require('pizza-logger');
 
 const logger = new Logger(config)
@@ -8,7 +8,7 @@ function sanitize(logData) {
     return logData.replace(/\\"password\\":\s*\\"[^"]*\\"/g, '\\"password\\": \\"*****\\"');
 }
 
-httpLogger = (req, res, next) => {
+const httpLogger = (req, res, next) => {
     let send = res.send;
     res.send = (resBody) => {
       const logData = {
