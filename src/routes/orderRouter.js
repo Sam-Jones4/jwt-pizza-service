@@ -55,6 +55,7 @@ orderRouter.put(
   authRouter.authenticateToken,
   asyncHandler(async (req, res) => {
     if (!req.user.isRole(Role.Admin)) {
+      logger.unhandledErrorLogger(this);
       throw new StatusCodeError('unable to add menu item', 403);
     }
 
