@@ -2,6 +2,7 @@ const express = require('express');
 const { DB, Role } = require('../database/database.js');
 const { authRouter } = require('./authRouter.js');
 const { StatusCodeError, asyncHandler } = require('../endpointHelper.js');
+const logger = require('../logger.js');
 
 const franchiseRouter = express.Router();
 
@@ -84,6 +85,7 @@ franchiseRouter.post(
   authRouter.authenticateToken,
   asyncHandler(async (req, res) => {
     if (!req.user.isRole(Role.Admin)) {
+      logger.unhandledErrorLogger(this);
       throw new StatusCodeError('unable to create a franchise', 403);
     }
 
@@ -97,6 +99,7 @@ franchiseRouter.delete(
   '/:franchiseId',
   asyncHandler(async (req, res) => {
     if (!req.user.isRole(Role.Admin)) {
+      logger.unhandledErrorLogger(this);
       throw new StatusCodeError('unable to delete a franchise', 403);
     }
 
@@ -114,6 +117,7 @@ franchiseRouter.post(
     const franchiseId = Number(req.params.franchiseId);
     const franchise = await DB.getFranchise({ id: franchiseId });
     if (!franchise || (!req.user.isRole(Role.Admin) && !franchise.admins.some((admin) => admin.id === req.user.id))) {
+      logger.unhandledErrorLogger(this);
       throw new StatusCodeError('unable to create a store', 403);
     }
 
@@ -129,6 +133,7 @@ franchiseRouter.delete(
     const franchiseId = Number(req.params.franchiseId);
     const franchise = await DB.getFranchise({ id: franchiseId });
     if (!franchise || (!req.user.isRole(Role.Admin) && !franchise.admins.some((admin) => admin.id === req.user.id))) {
+      logger.unhandledErrorLogger(this);
       throw new StatusCodeError('unable to delete a store', 403);
     }
 

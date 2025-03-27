@@ -4,6 +4,7 @@ const config = require('../config.js');
 const { asyncHandler } = require('../endpointHelper.js');
 const { DB, Role } = require('../database/database.js');
 const metrics = require('../metrics.js');
+const logger = require('../logger.js');
 
 const authRouter = express.Router();
 
@@ -60,9 +61,9 @@ async function setAuthUser(req, res, next) {
 authRouter.authenticateToken = (req, res, next) => {
   if (!req.user) {
     metrics.trackAuthAttempt(false);
+    logger.unhandledErrorLogger(this);
     return res.status(401).send({ message: 'unauthorized' });
   }
-  console.log("we got there")
   metrics.trackAuthAttempt(true);
   next();
 };
@@ -75,6 +76,7 @@ authRouter.post(
     const { name, email, password } = req.body;
     if (!name || !email || !password) {
       metrics.trackAuthAttempt(false);
+      logger.unhandledErrorLogger(this);
       return res.status(400).json({ message: 'name, email, and password are required' });
     }
     const user = await DB.addUser({ name, email, password, roles: [{ role: Role.Diner }] });
@@ -121,6 +123,7 @@ authRouter.put(
     const userId = Number(req.params.userId);
     const user = req.user;
     if (user.id !== userId && !user.isRole(Role.Admin)) {
+      logger.unhandledErrorLogger(this);
       return res.status(403).json({ message: 'unauthorized' });
     }
 
